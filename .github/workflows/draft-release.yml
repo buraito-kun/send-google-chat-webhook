@@ -19,4 +19,4 @@ jobs:
     with:
       version_strategy: '${{ github.event.inputs.version_strategy }}'
     secrets:
-      ACTIONS_BOT_TOKEN: '${{ secrets.ACTIONS_BOT_TOKEN }}'
+      ACTIONS_BOT_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
