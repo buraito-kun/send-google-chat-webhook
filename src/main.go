@@ -192,6 +192,10 @@ type messageBodyContent struct {
 // generateMessageBodyContent returns messageBodyContent for generating the request body.
 // using currentTimestamp as a input is for easier testing on default case.
 func generateMessageBodyContent(ghJSON, jobJSON map[string]any, currentTimeStamp time.Time) *messageBodyContent {
+	location, err := time.LoadLocation("Asia/Bangkok")
+	if err != nil {
+		panic(err)
+	}
 	event, ok := ghJSON[githubContextEventKey].(map[string]any)
 	if !ok {
 		event = map[string]any{}
@@ -238,7 +242,7 @@ func generateMessageBodyContent(ghJSON, jobJSON map[string]any, currentTimeStamp
 			triggeringActor: getMapFieldStringValue(ghJSON, githubContextTriggeringActorKey),
 			// The key for getting timestamp is different in differnet triggering event
 			// a simple work around is using the new timestamp.
-			timestamp: currentTimeStamp.UTC().Format(time.RFC3339),
+			timestamp: currentTimeStamp.In(location).Format(time.RFC3339),
 			clickURL:  fmt.Sprintf("%s/%s/actions/runs/%s", getMapFieldStringValue(ghJSON, githubContextServerURLKey), getMapFieldStringValue(ghJSON, githubContextRepositoryKey), getMapFieldStringValue(ghJSON, "run_id")),
 			eventName: "workflow",
 			repo:      getMapFieldStringValue(ghJSON, githubContextRepositoryKey),
@@ -298,7 +302,7 @@ func generateRequestBody(m *messageBodyContent) ([]byte, error) {
 									"startIcon": map[string]any{
 										"knownIcon": "CLOCK",
 									},
-									"text": fmt.Sprintf("<b>UTC: </b> %s", m.timestamp),
+									"text": fmt.Sprintf("<b>UTC +07:00: </b> %s", m.timestamp),
 								},
 							},
 							{
